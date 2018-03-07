@@ -74,6 +74,7 @@ void setTrapHandler(int vector, void (*handler)(), int maxAccessibleFromPL)
 }
 
 void keyboard_handler();
+void system_call_handler();
 
 void keyboard_routine(){
 	unsigned char readByte = inb(0x60);
@@ -87,9 +88,9 @@ void setIdt()
   idtR.limit = IDT_ENTRIES * sizeof(Gate) - 1;
   
   set_handlers();
-  setInterruptHandler(33, keyboard_handler, 0);
+  setInterruptHandler(33, keyboard_handler, 0); 
+  setTrapHandler(0x80, system_call_handler, 3); 
 
-  /* ADD INITIALIZATION CODE FOR INTERRUPT VECTOR */
 
   set_idt_reg(&idtR);
 }

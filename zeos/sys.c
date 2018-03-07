@@ -13,6 +13,8 @@
 
 #include <sched.h>
 
+#include <errno.h>
+
 #define LECTURA 0
 #define ESCRIPTURA 1
 
@@ -44,4 +46,12 @@ int sys_fork()
 
 void sys_exit()
 {  
+}
+
+int sys_write(int fd, char * buffer, int size){
+	int resultCheck=check_fd(fd,ESCRIPTURA);
+ if(resultCheck<0) return resultCheck;
+ if((buffer == NULL) || size<0) return EINVAL;
+ return sys_write_console (buffer,size);
+
 }
