@@ -74,12 +74,10 @@ void setTrapHandler(int vector, void (*handler)(), int maxAccessibleFromPL)
 }
 
 void keyboard_handler();
+void clock_handler();
 void system_call_handler();
 
-void keyboard_routine(){
-	unsigned char readByte = inb(0x60);
-	if(!(readByte&0x80)) printc_xy(0,0,char_map[readByte]);
-}
+
 
 void setIdt()
 {
@@ -88,10 +86,20 @@ void setIdt()
   idtR.limit = IDT_ENTRIES * sizeof(Gate) - 1;
   
   set_handlers();
-  setInterruptHandler(33, keyboard_handler, 0); 
+  setInterruptHandler(33, keyboard_handler, 0);
+  setInterruptHandler(32, clock_handler, 0); 
   setTrapHandler(0x80, system_call_handler, 3); 
 
 
   set_idt_reg(&idtR);
+}
+
+void keyboard_routine(){
+	unsigned char readByte = inb(0x60);
+	if(!(readByte&0x80)) printc_xy(0,0,char_map[readByte]);
+}
+
+void clock_routine(){
+	zeos_show_clock();
 }
 

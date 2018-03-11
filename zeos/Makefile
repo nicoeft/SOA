@@ -20,7 +20,7 @@ INCLUDEDIR = include
 # Define here flags to compile the tests if needed
 JP =
 
-CFLAGS = -O2  -g $(JP) -fno-omit-frame-pointer -ffreestanding -Wall -I$(INCLUDEDIR)
+CFLAGS = -g $(JP) -fno-omit-frame-pointer -ffreestanding -Wall -I$(INCLUDEDIR) -O2 
 ASMFLAGS = -I$(INCLUDEDIR)
 SYSLDFLAGS = -T system.lds
 USRLDFLAGS = -T user.lds
@@ -62,6 +62,7 @@ wrapper.s: wrapper.S $(INCLUDEDIR)/asm.h $(INCLUDEDIR)/errno.h
 	$(CPP) $(ASMFLAGS) -o $@ $<
 
 user.o:user.c $(INCLUDEDIR)/libc.h
+	gcc -m32 -g  -fno-omit-frame-pointer -ffreestanding -Wall -Iinclude -c -o user.o user.c
 
 interrupt.o:interrupt.c $(INCLUDEDIR)/interrupt.h $(INCLUDEDIR)/segment.h $(INCLUDEDIR)/types.h
 

@@ -2,13 +2,15 @@
 #include <errno.h>
 
 ENTRY(write)
-			movl 4(%ebp),%edx;
-			movl 8(%ebp),%ecx;
-			movl 12(%ebp),%ebx;
+			pushl %ebx;
+			movl 8(%ebp),%ebx; //en ebp+4 esta @ret
+			movl 12(%ebp),%ecx;
+			movl 16(%ebp),%edx;
 			movl $4,%eax;
 			int $0x80;
+			popl %ebx;
 			cmpl $0,%eax;
-			jle notError; 
+			jge notError; 
 			neg %eax;
 			movl %eax,errno;
 			movl $-1,%eax;

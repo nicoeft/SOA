@@ -1,7 +1,6 @@
 /*
  * system.c - 
  */
-
 #include <segment.h>
 #include <types.h>
 #include <interrupt.h>
@@ -100,6 +99,7 @@ int __attribute__((__section__(".text.main")))
 
 
   printk("Entering user mode...");
+
 
   enable_int();
   /*
