@@ -12,6 +12,7 @@
 Gate idt[IDT_ENTRIES];
 Register    idtR;
 
+int zeos_ticks;
 char char_map[] =
 {
   '\0','\0','1','2','3','4','5','6',
@@ -99,7 +100,15 @@ void keyboard_routine(){
 	if(!(readByte&0x80)) printc_xy(0,0,char_map[readByte]);
 }
 
-void clock_routine(){
-	zeos_show_clock();
+void init_zeos_ticks(){
+	zeos_ticks=0;
 }
+
+void clock_routine(){
+	zeos_ticks=zeos_ticks+1;
+	zeos_show_clock();
+	
+}
+
+
 
