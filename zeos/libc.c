@@ -3,7 +3,7 @@
  */
 
 #include <libc.h>
-
+#include <errno.h>
 #include <types.h>
 
 int errno;
@@ -44,6 +44,23 @@ int strlen(char *a)
 }
 
 int write (int fd, char * buffer, int size);
+
+void perror(){
+	switch(errno){
+		case EBADF:
+			write(1,"Bad file number",15);
+			break;
+		case EACCES:
+			write(1,"Permission denied",17);
+			break;
+		case ENOSYS:
+			write(1,"Function not implemented",24);
+			break;
+		case EINVAL:
+			write(1,"Invalid argument",16);
+			break;
+		}
+}
 
 
 

@@ -10,6 +10,10 @@
  * Container for the Task array and 2 additional pages (the first and the last one)
  * to protect against out of bound accesses.
  */
+struct list_head freequeue;  //Mirar si hacer extern en el .h
+
+struct list_head readyqueue;
+ 
 union task_union protected_tasks[NR_TASKS+2]
   __attribute__((__section__(".data.task")));
 
@@ -71,6 +75,18 @@ void init_task1(void)
 
 void init_sched(){
 
+}
+
+void init_readyqueue(){
+	INIT_LIST_HEAD(&readyqueue);
+}
+
+void init_freequeue(){
+	INIT_LIST_HEAD(&freequeue);
+	int i;
+	for(i=0;i<NR_TASKS;i++){
+		list_add(&task[i].task.list,&freequeue);
+	}
 }
 
 struct task_struct* current()

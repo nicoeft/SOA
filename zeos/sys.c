@@ -51,10 +51,18 @@ void sys_exit()
 }
 
 int sys_write(int fd, char * buffer, int size){
-	int resultCheck=check_fd(fd,ESCRIPTURA);
+ int resultCheck=check_fd(fd,ESCRIPTURA);
  if(resultCheck<0) return resultCheck;
  if((buffer == NULL) || size<0) return EINVAL;
- return sys_write_console (buffer,size);
+ char sysBuffer[4096];
+ int ret;
+ while(size > 4096){
+	 copy_from_user(buffer,sysBuffer,4096);
+	 size -= 4096;
+	 if(ret=sys_write_console(sysBuffer,4096)<0)return ret;
+ } 
+ copy_from_user(buffer,sysBuffer,size);
+ return sys_write_console (sysBuffer,size);
 
 }
 

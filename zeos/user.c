@@ -10,11 +10,14 @@ int __attribute__ ((__section__(".text.main")))
      /* __asm__ __volatile__ ("mov %0, %%cr3"::"r" (0) ); */
 	write(1,buff,strlen(buff));
 	int time=gettime();
+	while(time<25000){
+		time=gettime();
+	}
 	char timeChar[5];
 	itoa(time,timeChar);
 	char buffer[]="El resultado del gettime es:";
 	write(1,buffer,strlen(buffer));
 	write(1,timeChar,strlen(timeChar));
-	
+	if(write(2,buff,strlen(buff))<0) perror();
   while(1) { }
 }

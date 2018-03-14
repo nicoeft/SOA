@@ -138,4 +138,6 @@
 #define EOWNERDEAD  130 /* Owner died */
 #define ENOTRECOVERABLE 131 /* State not recoverable */
 
+//char* vector_errno[38] ={"Operation not permitted", "No such file or directory", "No such process", "Interrupted system call" };
+
 #endif
