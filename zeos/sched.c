@@ -13,13 +13,15 @@
 struct list_head freequeue;  //Mirar si hacer extern en el .h
 
 struct list_head readyqueue;
+
+struct task_struct * idle_task;
  
-union task_union protected_tasks[NR_TASKS+2]
+union task_union protected_tasks[NR_TASKS+2]  //equivalente al vector de PCB sin que se puede leer ni escribir en primeras ni ultimas posiciones
   __attribute__((__section__(".data.task")));
 
 union task_union *task = &protected_tasks[1]; /* == union task_union task[NR_TASKS] */
 
-#if 0
+#if 1
 struct task_struct *list_head_to_task_struct(struct list_head *l)
 {
   return list_entry( l, struct task_struct, list);
@@ -65,16 +67,42 @@ void cpu_idle(void)
 
 void init_idle (void)
 {
+	struct list_head *primerListHead = freequeue.next;  //agafem un PCB de la freequeue
+	list_del(primerListHead);   //eliminem el PCB de la freequeue
+	idle_task = list_head_to_task_struct(primerListHead); //agafem adreça PCB
+	idle_task->PID=0;
+	allocate_DIR(idle_task);
+	union task_union *idle_union = (union task_union *)idle_task;
+	idle_union->stack[1023]=&cpu_idle;
+	idle_union->stack[1022]=0;
+	idle_task->kernelEsp=&(idle_union->stack[1022]);
+
+	
 
 }
 
 void init_task1(void)
 {
+	struct list_head *primerListHead = freequeue.next;  //agafem un PCB de la freequeue
+	list_del(primerListHead);   //eliminem el PCB de la freequeue
+	struct task_struct *task1 = list_head_to_task_struct(primerListHead); //agafem adreça PCB
+	task1->PID=1;
+	allocate_DIR(task1);
+	set_user_pages(task1);
+	union task_union *task1_union = (union task_union *)task1;
+	tss.esp0=&(task1_union->stack[1023]);
+	set_cr3(task1->dir_pages_baseAddr);
+	
 }
 
 
 void init_sched(){
-
+    /* Initialize freequeue (sched.c)*/
+  init_freequeue();
+  
+  /* Initialize readyqueue (sched.c)*/
+  init_readyqueue();
+  
 }
 
 void init_readyqueue(){
@@ -97,6 +125,6 @@ struct task_struct* current()
   	"movl %%esp, %0"
 	: "=g" (ret_value)
   );
-  return (struct task_struct*)(ret_value&0xfffff000);
+  return (struct task_struct*)(ret_value&0xfffff000); //mask 12 bits(4KB)
 }
 

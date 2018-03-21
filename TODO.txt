@@ -1,0 +1,7 @@
+1-freequeue *
+2-readyqueue *
+hallar direccion de list_head usando masks 
+3-Init
+4-Idle(while(1))
+5-Sys_fork() kernel+code apuntan mismo frame.
+6-scheduler->clock_interrupt
