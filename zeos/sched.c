@@ -67,7 +67,7 @@ void cpu_idle(void)
 
 void init_idle (void)
 {
-	struct list_head *primerListHead = freequeue.next;  //agafem un PCB de la freequeue
+	struct list_head *primerListHead = list_first(&freequeue);  //agafem el primer PCB de la freequeue
 	list_del(primerListHead);   //eliminem el PCB de la freequeue
 	idle_task = list_head_to_task_struct(primerListHead); //agafem adreça PCB
 	idle_task->PID=0;
@@ -83,14 +83,14 @@ void init_idle (void)
 
 void init_task1(void)
 {
-	struct list_head *primerListHead = freequeue.next;  //agafem un PCB de la freequeue
+	struct list_head *primerListHead = list_first(&freequeue);  //agafem el primer PCB de la freequeue
 	list_del(primerListHead);   //eliminem el PCB de la freequeue
 	struct task_struct *task1 = list_head_to_task_struct(primerListHead); //agafem adreça PCB
 	task1->PID=1;
 	allocate_DIR(task1);
 	set_user_pages(task1);
 	union task_union *task1_union = (union task_union *)task1;
-	tss.esp0=&(task1_union->stack[1023]);
+	tss.esp0 = &(task1_union->stack[KERNEL_STACK_SIZE-1]);
 	set_cr3(task1->dir_pages_baseAddr);
 	
 }
@@ -128,3 +128,13 @@ struct task_struct* current()
   return (struct task_struct*)(ret_value&0xfffff000); //mask 12 bits(4KB)
 }
 
+void inner_task_switch(union task_union *new){
+	/*
+	current()->kernelEsp=ebp; //Store the address of the current system stack
+	tss.esp0 = &(new->stack[KERNEL_STACK_SIZE-1]); //TSS point to new system stack
+	set_cr3(new->task.dir_pages_baseAddr); //Changing logical adress space
+	esp = new->task.kernelEsp //change the system stack with the esp stored in the  new PCB
+	pop ebp //restore ebp register from the stack
+	ret
+	*/
+}
