@@ -26,8 +26,7 @@ SYSLDFLAGS = -T system.lds
 USRLDFLAGS = -T user.lds
 LINKFLAGS = -g
 
-SYSOBJ = interrupt.o entry.o sys_call_table.o io.o sched.o sys.o mm.o devices.o utils.o hardware.o list.o
-
+SYSOBJ = interrupt.o entry.o sys_call_table.o io.o taskswitch.o sched.o sys.o mm.o devices.o utils.o hardware.o list.o 
 LIBZEOS = -L . -l zeos
 
 #add to USROBJ the object files required to complete the user program
@@ -64,7 +63,10 @@ wrapper.s: wrapper.S $(INCLUDEDIR)/asm.h $(INCLUDEDIR)/errno.h
 user.o:user.c $(INCLUDEDIR)/libc.h
 	gcc -m32 -g  -fno-omit-frame-pointer -ffreestanding -Wall -Iinclude -c -o user.o user.c
 
-interrupt.o:interrupt.c $(INCLUDEDIR)/interrupt.h $(INCLUDEDIR)/segment.h $(INCLUDEDIR)/types.h
+taskswitch.s: taskswitch.S $(INCLUDEDIR)/asm.h 
+	$(CPP) $(ASMFLAGS) -o $@ $<
+
+interrupt.o:interrupt.c $(INCLUDEDIR)/interrupt.h $(INCLUDEDIR)/segment.h $(INCLUDEDIR)/types.h 
 
 io.o:io.c $(INCLUDEDIR)/io.h
 

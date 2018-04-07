@@ -14,6 +14,8 @@
 
 enum state_t { ST_RUN, ST_READY, ST_BLOCKED };
 
+
+
 struct task_struct {
   int PID;			/* Process ID. This MUST be the first field of the struct. */
   unsigned long * kernelEsp;
@@ -51,6 +53,8 @@ void init_sched(void);
 struct task_struct * current();
 
 void task_switch(union task_union*t);
+
+void inner_task_switch(union task_union *nw);
 
 struct task_struct *list_head_to_task_struct(struct list_head *l);
 

@@ -128,13 +128,6 @@ struct task_struct* current()
   return (struct task_struct*)(ret_value&0xfffff000); //mask 12 bits(4KB)
 }
 
-void inner_task_switch(union task_union *new){
-	/*
-	current()->kernelEsp=ebp; //Store the address of the current system stack
-	tss.esp0 = &(new->stack[KERNEL_STACK_SIZE-1]); //TSS point to new system stack
-	set_cr3(new->task.dir_pages_baseAddr); //Changing logical adress space
-	esp = new->task.kernelEsp //change the system stack with the esp stored in the  new PCB
-	pop ebp //restore ebp register from the stack
-	ret
-	*/
-}
+void task_switch(union task_union*t);
+
+void inner_task_switch(union task_union *nw);

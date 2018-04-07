@@ -13,7 +13,7 @@ ENTRY(write)
 			int $0x80;
 			popl %ebx;
 			popl %ebp; //Deshacer dynamic link
-			//movl %esp,%ebp; no hace falta no hay variables locales
+			movl %esp,%ebp; //no hace falta no hay variables locales
 			cmpl $0,%eax;
 			jge notError; 
 			neg %eax;
