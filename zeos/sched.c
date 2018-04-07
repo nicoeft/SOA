@@ -14,7 +14,8 @@ struct list_head freequeue;  //Mirar si hacer extern en el .h
 
 struct list_head readyqueue;
 
-struct task_struct * idle_task;
+struct task_struct *idle_task;
+struct task_struct *task1;
  
 union task_union protected_tasks[NR_TASKS+2]  //equivalente al vector de PCB sin que se puede leer ni escribir en primeras ni ultimas posiciones
   __attribute__((__section__(".data.task")));
@@ -57,10 +58,13 @@ int allocate_DIR(struct task_struct *t)
 
 void cpu_idle(void)
 {
+	
 	__asm__ __volatile__("sti": : :"memory");
-
+	int count=0;
 	while(1)
 	{
+		if(count%5000000==0)printk("CPU_IDLE\n");
+		count++;
 	;
 	}
 }
@@ -76,16 +80,13 @@ void init_idle (void)
 	idle_union->stack[1023]=&cpu_idle;
 	idle_union->stack[1022]=0;
 	idle_task->kernelEsp=&(idle_union->stack[1022]);
-
-	
-
 }
 
 void init_task1(void)
 {
 	struct list_head *primerListHead = list_first(&freequeue);  //agafem el primer PCB de la freequeue
 	list_del(primerListHead);   //eliminem el PCB de la freequeue
-	struct task_struct *task1 = list_head_to_task_struct(primerListHead); //agafem adreça PCB
+	task1 = list_head_to_task_struct(primerListHead); //agafem adreça PCB
 	task1->PID=1;
 	allocate_DIR(task1);
 	set_user_pages(task1);
@@ -131,3 +132,4 @@ struct task_struct* current()
 void task_switch(union task_union*t);
 
 void inner_task_switch(union task_union *nw);
+

@@ -1,6 +1,6 @@
 #include <libc.h>
 
-char buff[24]="\nWrite Working\n";
+char buff[24]="Init Task\n";
 
 int pid;
 int __attribute__ ((__section__(".text.main")))
@@ -8,9 +8,10 @@ int __attribute__ ((__section__(".text.main")))
 {
     /* Next line, tries to move value 0 to CR3 register. This register is a privileged one, and so it will raise an exception */
      /* __asm__ __volatile__ ("mov %0, %%cr3"::"r" (0) ); */
+     
 	write(1,buff,strlen(buff));
 	int time=gettime();
-	while(time<25000){
+	while(time<200){
 		time=gettime();
 	}
 	char timeChar[5];
@@ -18,6 +19,13 @@ int __attribute__ ((__section__(".text.main")))
 	char buffer[]="El resultado del gettime es:";
 	write(1,buffer,strlen(buffer));
 	write(1,timeChar,strlen(timeChar));
-	if(write(2,buff,strlen(buff))<0) perror();
-  while(1) { }
+	
+	/*if(write(2,buff,strlen(buff))<0) perror();*/
+	
+	int count=0;
+	while(1)
+	{
+		if(count%5000000==0)write(1,buff,strlen(buff));
+		count++;
+	}
 }

@@ -13,6 +13,7 @@ Gate idt[IDT_ENTRIES];
 Register    idtR;
 
 extern int zeos_ticks;
+int is_init=1;
 
 char char_map[] =
 {
@@ -105,10 +106,18 @@ void keyboard_routine(){
 void clock_routine(){
 	zeos_ticks++;
 	zeos_show_clock();
-	if(zeos_ticks==200){
-    printk("task switch");
-    task_switch((union task_union*)idle_task);
-  }
+	if(zeos_ticks%1000==0){	
+		if(is_init){
+		printk("task switch->idle\n");
+		is_init=0;
+		task_switch((union task_union*)idle_task);
+		}
+		else {
+		printk("task switch->init\n");
+		is_init=1;
+		task_switch((union task_union*)task1);
+		}
+	}
 }
 
 
