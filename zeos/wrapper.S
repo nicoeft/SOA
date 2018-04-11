@@ -35,4 +35,31 @@ ENTRY(gettime)
 			movl $-1,%eax;
 notError1:   
 			ret;
-		
+
+ENTRY(getpid)
+		pushl %ebp;      
+		movl %esp,%ebp;
+		movl $20,%eax;
+		int $0x80;
+		cmpl $0,%eax;
+			jge notError2; 
+			neg %eax;
+			movl %eax,errno;
+			movl $-1,%eax;
+notError2:   
+			popl %ebp;
+			ret;
+
+ENTRY(fork)
+		pushl %ebp;      
+		movl %esp,%ebp;
+		movl $2,%eax;
+		int $0x80;
+		cmpl $0,%eax;
+			jge notError3; 
+			neg %eax;
+			movl %eax,errno;
+			movl $-1,%eax;
+notError3:   
+			popl %ebp;
+			ret;

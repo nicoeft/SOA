@@ -14,13 +14,16 @@ int __attribute__ ((__section__(".text.main")))
 	while(time<200){
 		time=gettime();
 	}
-	char timeChar[5];
-	itoa(time,timeChar);
+	char c[5];
+	itoa(time,c);
 	char buffer[]="El resultado del gettime es:";
 	write(1,buffer,strlen(buffer));
-	write(1,timeChar,strlen(timeChar));
+	write(1,c,strlen(c));
 	
 	/*if(write(2,buff,strlen(buff))<0) perror();*/
+	int pid = getpid();
+	itoa(pid,c);
+	write(1,c,strlen(c));
 	
 	int count=0;
 	while(1)

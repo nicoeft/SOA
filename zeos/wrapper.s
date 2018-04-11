@@ -43,3 +43,31 @@ notError:
    movl $-1,%eax;
 notError1:
    ret;
+
+.globl getpid; .type getpid, @function; .align 0; getpid:
+  pushl %ebp;
+  movl %esp,%ebp;
+  movl $20,%eax;
+  int $0x80;
+  cmpl $0,%eax;
+   jge notError2;
+   neg %eax;
+   movl %eax,errno;
+   movl $-1,%eax;
+notError2:
+   popl %ebp;
+   ret;
+
+.globl fork; .type fork, @function; .align 0; fork:
+  pushl %ebp;
+  movl %esp,%ebp;
+  movl $2,%eax;
+  int $0x80;
+  cmpl $0,%eax;
+   jge notError3;
+   neg %eax;
+   movl %eax,errno;
+   movl $-1,%eax;
+notError3:
+   popl %ebp;
+   ret;
