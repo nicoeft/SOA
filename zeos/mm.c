@@ -8,6 +8,8 @@
 #include <hardware.h>
 #include <sched.h>
 
+
+unsigned int newpid;
 Byte phys_mem[TOTAL_PAGES];
 
 /* SEGMENTATION */
@@ -139,6 +141,8 @@ void init_mm()
   allocate_DIR(&task[0].task);
   set_cr3(get_DIR(&task[0].task));
   set_pe_flag();
+  
+  newpid=2;
 }
 /***********************************************/
 /************** SEGMENTATION MANAGEMENT ********/

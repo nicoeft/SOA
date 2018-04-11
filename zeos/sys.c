@@ -39,11 +39,47 @@ int sys_getpid()
 
 int sys_fork()
 {
-  int PID=-1;
-
-  // creates the child process
   
-  return PID;
+	struct list_head *primerListHead = list_first(&freequeue);
+	if(primerListHead==NULL)return ENOSPC;
+	list_del(primerListHead);
+	struct task_struct *taskFork = list_head_to_task_struct(primerListHead);
+	copy_data((union task_union *)current(),(union task_union *)taskFork,KERNEL_STACK_SIZE);
+	allocate_DIR(taskFork);
+	int i;
+	int frames[NUM_PAG_DATA];
+	page_table_entry * pt = get_PT(taskFork);
+	for(i=0;i<NUM_PAG_DATA;i++){
+		frames[i] = alloc_frame();
+		if(frames[i] < 0){
+			for(;i>=0;i--){
+			free_frame(frames[i]);
+			}
+			return ENOMEM;
+		}
+		set_ss_pag(pt,i+NUM_PAG_KERNEL+NUM_PAG_CODE,frames[i]);
+	}
+	for(i=0;i<NUM_PAG_KERNEL+NUM_PAG_CODE;i++){
+		set_ss_pag(pt,i,i);
+	}
+	page_table_entry * ptf = get_PT(current());
+	for(i=0;i<NUM_PAG_DATA;i++){
+		set_ss_pag(ptf,i+NUM_PAG_KERNEL+NUM_PAG_CODE+NUM_PAG_DATA,frames[i]);
+		copy_data((i+NUM_PAG_KERNEL+NUM_PAG_CODE)*PAGE_SIZE,(i+NUM_PAG_KERNEL+NUM_PAG_CODE+NUM_PAG_DATA)*PAGE_SIZE,PAGE_SIZE);
+		del_ss_pag(ptf,i+NUM_PAG_KERNEL+NUM_PAG_CODE+NUM_PAG_DATA);
+	}
+	set_cr3(current()->dir_pages_baseAddr);
+	
+	taskFork->PID=newpid;
+	newpid++;
+	taskFork->kernelEsp = ((union task_union *)taskFork)+(KERNEL_STACK_SIZE*4)-19*4;
+	((union task_union *)taskFork)->stack[KERNEL_STACK_SIZE-18]=&ret_from_fork;
+	list_add(taskFork->list,&readyqueue);
+  return taskFork->PID;
+}
+
+int ret_from_fork(){
+	return 0;
 }
 
 void sys_exit()

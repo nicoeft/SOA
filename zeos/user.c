@@ -24,6 +24,7 @@ int __attribute__ ((__section__(".text.main")))
 	int pid = getpid();
 	itoa(pid,c);
 	write(1,c,strlen(c));
+	fork();
 	
 	int count=0;
 	while(1)
