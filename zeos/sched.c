@@ -10,6 +10,8 @@
  * Container for the Task array and 2 additional pages (the first and the last one)
  * to protect against out of bound accesses.
  */
+
+unsigned int newpid;
 struct list_head freequeue;  //Mirar si hacer extern en el .h
 
 struct list_head readyqueue;
@@ -98,6 +100,9 @@ void init_task1(void)
 
 
 void init_sched(){
+
+	//initialize pid for other tasks
+	newpid=2;
     /* Initialize freequeue (sched.c)*/
   init_freequeue();
   
@@ -132,4 +137,8 @@ struct task_struct* current()
 void task_switch(union task_union*t);
 
 void inner_task_switch(union task_union *nw);
+
+unsigned int get_new_pid(){
+	return newpid++;
+}
 

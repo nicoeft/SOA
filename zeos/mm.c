@@ -8,8 +8,6 @@
 #include <hardware.h>
 #include <sched.h>
 
-
-unsigned int newpid;
 Byte phys_mem[TOTAL_PAGES];
 
 /* SEGMENTATION */
