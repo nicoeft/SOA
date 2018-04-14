@@ -13,9 +13,7 @@
 
 unsigned int newpid;
 struct list_head freequeue;  //Mirar si hacer extern en el .h
-
 struct list_head readyqueue;
-
 struct task_struct *idle_task;
 struct task_struct *task1;
  

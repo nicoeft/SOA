@@ -45,7 +45,6 @@ int sys_fork()
 	//Get frames for user(data+stack), if not enough, free them and return an error.
 	
 	int frames[NUM_PAG_DATA];
-	page_table_entry * pt = get_PT(taskFork);
 	for(int i=0;i<NUM_PAG_DATA;i++){
 		frames[i] = alloc_frame(); //returns a free frame and marks it as used or -1 if no more
 		if(frames[i] < 0){
@@ -91,7 +90,7 @@ int sys_fork()
 		set_ss_pag(child_PT,i+PAG_LOG_INIT_DATA,frames[i]);//entries point to allocated frames
 		set_ss_pag(parent_PT,first_free_entry,frames[i]);//temporaly map child frames to copy
 		//We can now copy  parent data into child cuz we have the child frame in the parent TP
-		copy_data((void *)(PAG_LOG_INIT_DATA+i)*PAGE_SIZE,(void*)first_free_entry*PAGE_SIZE, PAGE_SIZE);
+		copy_data((void *)((PAG_LOG_INIT_DATA+i)*PAGE_SIZE),(void *)(first_free_entry*PAGE_SIZE), PAGE_SIZE);
 		//Free temporal entry used in the page table,we don't want the parent to know child user data
 		del_ss_pag(parent_PT,first_free_entry);
 	}
@@ -99,11 +98,11 @@ int sys_fork()
 	set_cr3(current()->dir_pages_baseAddr);
 	child_union->task.PID=get_new_pid(); //Assign a new PID
 	//Initialize the fields of the task_struct that are not common to the child
-	child_union->task->kernelEsp = &child_union->stack[KERNEL_STACK_SIZE-19]; //Correct esp
+	child_union->task.kernelEsp = &child_union->stack[KERNEL_STACK_SIZE-19]; //Correct esp
 	//Prepare the child stack with a content that emulates the result of a call to task_switch.Like the idle
 	child_union->stack[KERNEL_STACK_SIZE-19]=0; //when it returns from a task_switch will pop ebp
 	child_union->stack[KERNEL_STACK_SIZE-18]=&ret_from_fork; // and then return(here the magic happens, the fork() in child returns 0)
-	list_add(child_union->task.list,&readyqueue);
+	list_add(&child_union->task.list,&readyqueue);
   return child_union->task.PID;
 }
 
