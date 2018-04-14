@@ -1,0 +1,13 @@
+.vscode/c_cpp_properties.json
+zeos/taskswitch.s
+zeos/taskswitch.o
+zeos/bootsect.s
+zeos/bootsect
+zeos/bootsect.o
+zeos/entry.o
+zeos/entry.s
+zeos/sys_call_table.s
+zeos/interrupt.o
+zeos/io.o
+zeos/sched.o
+zeos/sys_call_table.o
