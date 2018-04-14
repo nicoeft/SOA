@@ -6,7 +6,7 @@
 #include <segment.h>
 #include <hardware.h>
 #include <io.h>
-
+#include <sched.h>
 #include <zeos_interrupt.h>
 
 Gate idt[IDT_ENTRIES];
@@ -107,7 +107,7 @@ void clock_routine(){
 	zeos_ticks++;
 	zeos_show_clock();
 	if(zeos_ticks%1000==0){	
-		if(is_init){
+		/*if(is_init){
 		printk("task switch->idle\n");
 		is_init=0;
 		task_switch((union task_union*)idle_task);
@@ -116,7 +116,13 @@ void clock_routine(){
 		printk("task switch->init\n");
 		is_init=1;
 		task_switch((union task_union*)task1);
-		}
+		}*/
+    if(!list_empty(&readyqueue)){
+    printk("task switch->FORK\n");
+    struct list_head *primerListHead = list_first(&readyqueue);
+    union task_union *child_union = (union task_union *) list_head_to_task_struct(primerListHead);
+    task_switch(child_union);
+    }
 	}
 }
 

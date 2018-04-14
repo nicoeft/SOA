@@ -11,3 +11,4 @@ zeos/interrupt.o
 zeos/io.o
 zeos/sched.o
 zeos/sys_call_table.o
+.vscode/settings.json
