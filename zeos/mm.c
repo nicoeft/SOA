@@ -139,8 +139,6 @@ void init_mm()
   allocate_DIR(&task[0].task);
   set_cr3(get_DIR(&task[0].task));
   set_pe_flag();
-  
-  newpid=2;
 }
 /***********************************************/
 /************** SEGMENTATION MANAGEMENT ********/
