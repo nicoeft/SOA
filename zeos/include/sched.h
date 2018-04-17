@@ -21,6 +21,8 @@ struct task_struct {
   unsigned long * kernelEsp;
   page_table_entry * dir_pages_baseAddr;
   struct list_head list;
+  int quantum;
+  enum state_t state;
   
 };
 

@@ -12,10 +12,13 @@
  */
 
 unsigned int newpid;
+int quantum_remaining;
 struct list_head freequeue;  //Mirar si hacer extern en el .h
 struct list_head readyqueue;
+extern struct list_head blocked;
 struct task_struct *idle_task;
 struct task_struct *task1;
+
  
 union task_union protected_tasks[NR_TASKS+2]  //equivalente al vector de PCB sin que se puede leer ni escribir en primeras ni ultimas posiciones
   __attribute__((__section__(".data.task")));
@@ -29,7 +32,6 @@ struct task_struct *list_head_to_task_struct(struct list_head *l)
 }
 #endif
 
-extern struct list_head blocked;
 
 
 /* get_DIR - Returns the Page Directory address for task 't' */
@@ -139,4 +141,52 @@ void inner_task_switch(union task_union *new_t);
 unsigned int get_new_pid(){
 	return newpid++;
 }
+
+int get_quantum (struct task_struct *t){
+	return t->quantum;
+}
+void set_quantum (struct task_struct *t, int new_quantum){
+	t->quantum = new_quantum;
+}
+
+void sched_next_rr(){
+	struct task_struct *next_process_task;
+	if(list_empty(&readyqueue)){ //if there are no other processes we do IDLE
+		next_process_task = idle_task;
+	}else{
+		struct list_head *primerListHead = list_first(&readyqueue); 
+		list_del(primerListHead);
+		next_process_task = list_head_to_task_struct(primerListHead); 
+	}
+	quantum_remaining = get_quantum(next_process_task);
+	task_switch((union task_union *)next_process_task);
+}
+
+void update_process_state_rr(struct task_struct *t, struct list_head *dest){
+	if(t->state!=ST_RUN) list_del(&t->list);
+	if(dest != NULL){
+			if(t != idle_task)list_add_tail(&t->list,&dest);
+			if(dest == &readyqueue){
+				t->state=ST_READY;
+			}
+			else t->state=ST_BLOCKED;
+	}
+	else t->state = ST_RUN;
+}
+
+int needs_sched_rr(){
+	if(quantum_remaining <= 0 && !list_empty(&readyqueue)){
+		return 1; 
+	}
+	else if(quantum_remaining <=0) quantum_remaining = get_quantum(current());
+}
+
+void update_sched_data_rr(){
+	quantum_remaining++;
+	if(needs_sched_rr){
+		update_process_state_rr(current(),&readyqueue); //Put the current process in ready
+		sched_next_rr(); //execute the next process ready
+	}
+}
+
 
