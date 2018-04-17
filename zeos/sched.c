@@ -90,6 +90,7 @@ void init_task1(void)
 	list_del(primerListHead);   //eliminem el PCB de la freequeue
 	task1 = list_head_to_task_struct(primerListHead); //agafem adreça PCB
 	task1->PID=1;
+	task1->quantum=400;
 	allocate_DIR(task1);
 	set_user_pages(task1);
 	union task_union *task1_union = (union task_union *)task1;
@@ -100,7 +101,8 @@ void init_task1(void)
 
 
 void init_sched(){
-
+	
+	quantum_remaining = 1;
 	//initialize pid for other tasks
 	newpid=2;
     /* Initialize freequeue (sched.c)*/
@@ -152,6 +154,7 @@ void set_quantum (struct task_struct *t, int new_quantum){
 void sched_next_rr(){
 	struct task_struct *next_process_task;
 	if(list_empty(&readyqueue)){ //if there are no other processes we do IDLE
+		
 		next_process_task = idle_task;
 	}else{
 		struct list_head *primerListHead = list_first(&readyqueue); 
@@ -165,7 +168,7 @@ void sched_next_rr(){
 void update_process_state_rr(struct task_struct *t, struct list_head *dest){
 	if(t->state!=ST_RUN) list_del(&t->list);
 	if(dest != NULL){
-			if(t != idle_task)list_add_tail(&t->list,&dest);
+			if(t != idle_task) list_add_tail(&t->list,&dest);
 			if(dest == &readyqueue){
 				t->state=ST_READY;
 			}
@@ -178,7 +181,8 @@ int needs_sched_rr(){
 	if(quantum_remaining <= 0 && !list_empty(&readyqueue)){
 		return 1; 
 	}
-	else if(quantum_remaining <=0) quantum_remaining = get_quantum(current());
+	else if(quantum_remaining <=0)quantum_remaining = get_quantum(current());
+	return 0;
 }
 
 void update_sched_data_rr(){

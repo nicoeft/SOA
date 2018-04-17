@@ -20,23 +20,19 @@ int __attribute__ ((__section__(".text.main")))
 	write(1,c,strlen(c));
 	
 	/*if(write(2,buff,strlen(buff))<0) perror();*/
-	int pid = getpid();
-	itoa(pid,c);
-	write(1,c,strlen(c));
 	fork();
-	int retPid = fork();
-	if(retPid == 0){
-		char childBuffer[]="Child Task";
-		write(1,childBuffer,strlen(childBuffer));
-	}else{
-		char childBuffer[]="Parent Task";
-		write(1,childBuffer,strlen(childBuffer));
-	}
+	fork();
 	
 	int count=0;
 	while(1)
 	{
-		if(count%5000000==0)write(1,buff,strlen(buff));
+		if(count%5000000==0){
+			int pid = getpid();
+			itoa(pid,c);
+			char pidBuffer[]="El pid del proceso es: ";
+			write(1,pidBuffer,strlen(pidBuffer));
+			write(1,c,strlen(c));
+		}
 		count++;
 	}
 }
