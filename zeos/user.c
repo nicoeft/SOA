@@ -1,6 +1,6 @@
 #include <libc.h>
 
-char buff[24]="Init Task\n";
+char buff[]="Init Task\n";
 
 int pid;
 int __attribute__ ((__section__(".text.main")))
@@ -8,7 +8,6 @@ int __attribute__ ((__section__(".text.main")))
 {
     /* Next line, tries to move value 0 to CR3 register. This register is a privileged one, and so it will raise an exception */
      /* __asm__ __volatile__ ("mov %0, %%cr3"::"r" (0) ); */
-     
 	write(1,buff,strlen(buff));
 	int time=gettime();
 	while(time<200){
@@ -25,6 +24,14 @@ int __attribute__ ((__section__(".text.main")))
 	itoa(pid,c);
 	write(1,c,strlen(c));
 	fork();
+	int retPid = fork();
+	if(retPid == 0){
+		char childBuffer[]="Child Task";
+		write(1,childBuffer,strlen(childBuffer));
+	}else{
+		char childBuffer[]="Parent Task";
+		write(1,childBuffer,strlen(childBuffer));
+	}
 	
 	int count=0;
 	while(1)

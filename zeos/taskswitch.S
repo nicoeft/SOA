@@ -34,7 +34,7 @@ ENTRY(inner_task_switch)
             movl 4(%ebx),%edi;   // edi=KernelESP
             leal tss, %ecx;      //%ecx=&tss
             movl %ebx,%eax;      
-            addl 0x1000,%eax;    //&task_union+4096 es la system_stack
+            addl $0x1000,%eax;    //&task_union+4096 es la system_stack
             movl %eax, 4(%ecx);     //Posar la system_stack de NEW a tss 
             
             

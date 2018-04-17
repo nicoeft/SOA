@@ -77,9 +77,9 @@ void init_idle (void)
 	idle_task->PID=0;
 	allocate_DIR(idle_task);
 	union task_union *idle_union = (union task_union *)idle_task;
-	idle_union->stack[1023]=&cpu_idle;
-	idle_union->stack[1022]=0;
-	idle_task->kernelEsp=&(idle_union->stack[1022]);
+	idle_union->stack[KERNEL_STACK_SIZE-1]=&cpu_idle;
+	idle_union->stack[KERNEL_STACK_SIZE-2]=0;
+	idle_task->kernelEsp=&(idle_union->stack[KERNEL_STACK_SIZE-2]);
 }
 
 void init_task1(void)
@@ -91,7 +91,7 @@ void init_task1(void)
 	allocate_DIR(task1);
 	set_user_pages(task1);
 	union task_union *task1_union = (union task_union *)task1;
-	tss.esp0 = &(task1_union->stack[KERNEL_STACK_SIZE-1]);
+	tss.esp0 = KERNEL_ESP(task1_union);
 	set_cr3(task1->dir_pages_baseAddr);
 	
 }
@@ -134,7 +134,7 @@ struct task_struct* current()
 
 void task_switch(union task_union*t);
 
-void inner_task_switch(union task_union *nw);
+void inner_task_switch(union task_union *new_t);
 
 unsigned int get_new_pid(){
 	return newpid++;
