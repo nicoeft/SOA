@@ -182,8 +182,12 @@ int needs_sched_rr(){
 }
 
 void update_sched_data_rr(){
-	quantum_remaining++;
-	if(needs_sched_rr){
+	quantum_remaining--;
+}
+
+void schedule(){
+	update_sched_data_rr();
+	if(needs_sched_rr()){
 		update_process_state_rr(current(),&readyqueue); //Put the current process in ready
 		sched_next_rr(); //execute the next process ready
 	}

@@ -102,29 +102,10 @@ void keyboard_routine(){
 	if(!(readByte&0x80)) printc_xy(0,0,char_map[readByte]);
 }
 
-
 void clock_routine(){
 	zeos_ticks++;
 	zeos_show_clock();
-	if(zeos_ticks%200==0){	
-		if(is_init){
-			printk("task switch->idle\n");
-			is_init=0;
-			task_switch((union task_union*)idle_task);
-		}
-		else if(!list_empty(&readyqueue)){
-			printk("task switch->FORK\n");
-			struct list_head *primerListHead = list_first(&readyqueue);
-			list_del(primerListHead);
-			union task_union *child_union = (union task_union *) list_head_to_task_struct(primerListHead);
-			task_switch(child_union);
-		}
-		else {
-			printk("task switch->init\n");
-			is_init=1;
-			task_switch((union task_union*)task1);
-		}
-	}
+  schedule();
 }
 
 
