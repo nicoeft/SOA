@@ -157,13 +157,14 @@ void sched_next_rr(){
 	if(list_empty(&readyqueue)){ //if there are no other processes we do IDLE
 		next_process_task = idle_task;
 	}else{
-		printk("Agafa ready");
 		struct list_head *primerListHead = list_first(&readyqueue); 
 		list_del(primerListHead);
 		next_process_task = list_head_to_task_struct(primerListHead); 
 	}
 	next_process_task->state = ST_RUN;
 	quantum_remaining = get_quantum(next_process_task);
+	update_in_stats();
+	ready_out_update_stats(next_process_task);
 	task_switch((union task_union *)next_process_task);
 }
 
@@ -202,6 +203,21 @@ void schedule(){
 		update_process_state_rr(current(),&readyqueue); //Put the current process in ready
 		sched_next_rr(); //execute the next process ready
 	}
+}
+
+void update_in_stats(){
+	current()->p_stats.user_ticks += get_ticks()-current()->p_stats.elapsed_total_ticks;
+	current()->p_stats.elapsed_total_ticks = get_ticks();
+}
+
+void interrupt_out_update_stats(){
+	current()->p_stats.system_ticks += get_ticks()-current()->p_stats.elapsed_total_ticks;
+	current()->p_stats.elapsed_total_ticks = get_ticks();
+}
+
+void ready_out_update_stats(struct task_struct * t){
+	t->p_stats.ready_ticks += get_ticks()-t->p_stats.elapsed_total_ticks;
+	t->p_stats.elapsed_total_ticks = get_ticks();
 }
 
 

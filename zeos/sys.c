@@ -34,7 +34,9 @@ int sys_ni_syscall()
 
 int sys_getpid()
 {
+	update_in_stats();
 	return current()->PID;
+	interrupt_out_update_stats();
 }
 
 int ret_from_fork(){
@@ -42,7 +44,8 @@ int ret_from_fork(){
 }
 
 int sys_fork()
-{
+{	
+	update_in_stats();
 	//Get a free task_struct for the process. If no space an error will be returned.
     if(list_empty(&freequeue)) return -ENOSPC; 
 	//first we see if we can get all the frames,if enough we can get a new task_struct
@@ -110,6 +113,7 @@ int sys_fork()
 	child_union->stack[KERNEL_STACK_SIZE-18]=&ret_from_fork; // and then return(here the magic happens, the fork() in child returns 0)
 	child_union->task.state = ST_READY;
 	list_add_tail(&child_union->task.list,&readyqueue);
+	interrupt_out_update_stats();
 return child_union->task.PID;
 }
 
@@ -117,12 +121,15 @@ return child_union->task.PID;
 
 void sys_exit()
 { 
+	update_in_stats();
 	free_user_pages(current()); 
 	update_process_state_rr(current(),&freequeue); //free PCB
 	sched_next_rr();
+	interrupt_out_update_stats();
 }
 
 int sys_write(int fd, char * buffer, int size){
+ update_in_stats();
  int resultCheck=check_fd(fd,ESCRIPTURA);
  if(resultCheck<0) return resultCheck;
  if((buffer == NULL) || size<0) return -EINVAL;
@@ -134,10 +141,30 @@ int sys_write(int fd, char * buffer, int size){
 	 if(ret=sys_write_console(sysBuffer,1024)<0)return ret;
  } 
  copy_from_user(buffer,sysBuffer,size);
+ interrupt_out_update_stats();
  return sys_write_console (sysBuffer,size);
 
 }
 
 int sys_gettime(){
+	update_in_stats();
 	return zeos_ticks;
+	interrupt_out_update_stats();
+}
+
+int sys_get_stats(int pid,struct stats *st){
+	if(st == NULL || pid <=0) return -1;
+	for(int i=0;i<NR_TASKS;i++){
+		if(pid == task[i].task.PID){
+			struct list_head *pos;
+			list_for_each(pos,&freequeue){
+				if(pos == &task[i].task.list){ //dead process
+					return -1;
+				}
+			}
+			copy_to_user(&task[i].task.p_stats,st,sizeof(struct stats));
+			return 0;
+		}
+	}
+	return -1;
 }

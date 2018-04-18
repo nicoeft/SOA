@@ -7,6 +7,7 @@
 #include <errno.h>
 
 
+
 /**************************************************/
 /**** Save & Restore ******************************/
 /**                                              **/
@@ -69,6 +70,7 @@
 	movb $0x20, %al ; \
 	outb %al, $0x20 ;
 	
+	
 ENTRY(keyboard_handler)
 	SAVE_ALL
 	EOI
@@ -91,7 +93,7 @@ ENTRY(system_call_handler)
 	jl err                    //If it is, jump to return an error
 	cmpl $MAX_SYSCALL, %eax   //Is syscall greater than MAX_SYSCALL (4)?
 	jg err                    //If it is, jump to return an error
-	call *sys_call_table(, %eax, 0x04)   //Call the corresponding service routine 
+	call *sys_call_table(, %eax, 0x04)   //Call the corresponding service routine
 	jmp fin     //Finish
 err:
 	movl $-ENOSYS, %eax            // Move to eax the ENOSYS error

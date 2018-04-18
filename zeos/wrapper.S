@@ -72,3 +72,19 @@ ENTRY(exit)
 		int $0x80;
 		popl %ebp;
 		ret;
+		
+ENTRY(get_stats)
+		pushl %ebp;      
+		movl %esp,%ebp;
+		movl 8(%ebp),%ebx; //primer param (pid)
+		movl 12(%ebp),%ecx; //segon param (struct stats *st)
+		movl $35,%eax;
+		int $0x80;
+		cmpl $0,%eax;
+			jge notError4; 
+			neg %eax;
+			movl %eax,errno;
+			movl $-1,%eax;
+notError4:   
+			popl %ebp;
+			ret;
