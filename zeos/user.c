@@ -22,7 +22,7 @@ int __attribute__ ((__section__(".text.main")))
 	/*if(write(2,buff,strlen(buff))<0) perror();*/
 	fork();
 	fork();
-	
+	exit();
 	int count=0;
 	while(1)
 	{

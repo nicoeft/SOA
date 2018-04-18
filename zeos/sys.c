@@ -114,7 +114,10 @@ return child_union->task.PID;
 
 
 void sys_exit()
-{  
+{ 
+	free_user_pages(current());
+	list_add_tail(&current()->list,&freequeue);
+	sched_next_rr();
 }
 
 int sys_write(int fd, char * buffer, int size){

@@ -154,7 +154,6 @@ void set_quantum (struct task_struct *t, int new_quantum){
 void sched_next_rr(){
 	struct task_struct *next_process_task;
 	if(list_empty(&readyqueue)){ //if there are no other processes we do IDLE
-		
 		next_process_task = idle_task;
 	}else{
 		struct list_head *primerListHead = list_first(&readyqueue); 
