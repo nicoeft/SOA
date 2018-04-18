@@ -20,9 +20,7 @@ int __attribute__ ((__section__(".text.main")))
 	write(1,c,strlen(c));
 	
 	/*if(write(2,buff,strlen(buff))<0) perror();*/
-	fork();
-	fork();
-	exit();
+	int retPid=fork();
 	int count=0;
 	while(1)
 	{
@@ -32,6 +30,7 @@ int __attribute__ ((__section__(".text.main")))
 			char pidBuffer[]="El pid del proceso es: ";
 			write(1,pidBuffer,strlen(pidBuffer));
 			write(1,c,strlen(c));
+			exit();
 		}
 		count++;
 	}

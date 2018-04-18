@@ -90,7 +90,7 @@ void init_task1(void)
 	list_del(primerListHead);   //eliminem el PCB de la freequeue
 	task1 = list_head_to_task_struct(primerListHead); //agafem adreça PCB
 	task1->PID=1;
-	task1->quantum=400;
+	task1->quantum=1000;
 	allocate_DIR(task1);
 	set_user_pages(task1);
 	union task_union *task1_union = (union task_union *)task1;
@@ -165,9 +165,11 @@ void sched_next_rr(){
 }
 
 void update_process_state_rr(struct task_struct *t, struct list_head *dest){
-	if(t->state!=ST_RUN) list_del(&t->list);
-	if(dest != NULL){
-			if(t != idle_task) list_add_tail(&t->list,&dest);
+	if(t->state!=ST_RUN) list_del(&t->list); //if not running it can be in blocked or ready queues
+	if(dest != NULL){ //new state is not running
+			if(t != idle_task){
+				list_add_tail(&t->list,dest); //never add idle to readyqueue
+			}
 			if(dest == &readyqueue){
 				t->state=ST_READY;
 			}
@@ -177,10 +179,10 @@ void update_process_state_rr(struct task_struct *t, struct list_head *dest){
 }
 
 int needs_sched_rr(){
-	if(quantum_remaining <= 0 && !list_empty(&readyqueue)){
-		return 1; 
+	if(quantum_remaining <= 0){
+		if(!list_empty(&readyqueue)) return 1;
+		else quantum_remaining = get_quantum(current());
 	}
-	else if(quantum_remaining <=0)quantum_remaining = get_quantum(current());
 	return 0;
 }
 

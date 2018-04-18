@@ -115,8 +115,8 @@ return child_union->task.PID;
 
 void sys_exit()
 { 
-	free_user_pages(current());
-	list_add_tail(&current()->list,&freequeue);
+	free_user_pages(current()); 
+	update_process_state_rr(current(),&freequeue); //free PCB
 	sched_next_rr();
 }
 
