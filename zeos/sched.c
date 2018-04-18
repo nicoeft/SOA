@@ -91,6 +91,7 @@ void init_task1(void)
 	task1 = list_head_to_task_struct(primerListHead); //agafem adreça PCB
 	task1->PID=1;
 	task1->quantum=1000;
+	task1->state=ST_RUN;
 	allocate_DIR(task1);
 	set_user_pages(task1);
 	union task_union *task1_union = (union task_union *)task1;
@@ -156,16 +157,21 @@ void sched_next_rr(){
 	if(list_empty(&readyqueue)){ //if there are no other processes we do IDLE
 		next_process_task = idle_task;
 	}else{
+		printk("Agafa ready");
 		struct list_head *primerListHead = list_first(&readyqueue); 
 		list_del(primerListHead);
 		next_process_task = list_head_to_task_struct(primerListHead); 
 	}
+	next_process_task->state = ST_RUN;
 	quantum_remaining = get_quantum(next_process_task);
 	task_switch((union task_union *)next_process_task);
 }
 
 void update_process_state_rr(struct task_struct *t, struct list_head *dest){
-	if(t->state!=ST_RUN) list_del(&t->list); //if not running it can be in blocked or ready queues
+	if(t->state!=ST_RUN){
+		if(t->state==ST_READY)printk("ST_READY\n");
+		 list_del(&t->list); //if not running it can be in blocked or ready queues
+	}
 	if(dest != NULL){ //new state is not running
 			if(t != idle_task){
 				list_add_tail(&t->list,dest); //never add idle to readyqueue
@@ -173,7 +179,7 @@ void update_process_state_rr(struct task_struct *t, struct list_head *dest){
 			if(dest == &readyqueue){
 				t->state=ST_READY;
 			}
-			else t->state=ST_BLOCKED;
+			else if(dest != &freequeue) t->state=ST_BLOCKED;
 	}
 	else t->state = ST_RUN;
 }

@@ -27,10 +27,11 @@ int __attribute__ ((__section__(".text.main")))
 		if(count%5000000==0){
 			int pid = getpid();
 			itoa(pid,c);
-			char pidBuffer[]="El pid del proceso es: ";
+			char pidBuffer[]="PID es: ";
 			write(1,pidBuffer,strlen(pidBuffer));
 			write(1,c,strlen(c));
-			exit();
+			write(1,"\n",1);
+			//exit();
 		}
 		count++;
 	}

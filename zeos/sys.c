@@ -107,7 +107,8 @@ int sys_fork()
 	//Prepare the child stack with a content that emulates the result of a call to task_switch.Like the idle
 	child_union->stack[KERNEL_STACK_SIZE-19]=0; //when it returns from a task_switch will pop ebp
 	child_union->stack[KERNEL_STACK_SIZE-18]=&ret_from_fork; // and then return(here the magic happens, the fork() in child returns 0)
-	list_add(&child_union->task.list,&readyqueue);
+	child_union->task.state = ST_READY;
+	list_add_tail(&child_union->task.list,&readyqueue);
 return child_union->task.PID;
 }
 
@@ -124,12 +125,12 @@ int sys_write(int fd, char * buffer, int size){
  int resultCheck=check_fd(fd,ESCRIPTURA);
  if(resultCheck<0) return resultCheck;
  if((buffer == NULL) || size<0) return -EINVAL;
- char sysBuffer[4096];
+ char sysBuffer[1024];
  int ret;
- while(size > 4096){
-	 copy_from_user(buffer,sysBuffer,4096);
-	 size -= 4096;
-	 if(ret=sys_write_console(sysBuffer,4096)<0)return ret;
+ while(size > 1024){
+	 copy_from_user(buffer,sysBuffer,1024);
+	 size -= 1024;
+	 if(ret=sys_write_console(sysBuffer,1024)<0)return ret;
  } 
  copy_from_user(buffer,sysBuffer,size);
  return sys_write_console (sysBuffer,size);
