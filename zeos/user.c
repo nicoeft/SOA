@@ -31,7 +31,7 @@ int __attribute__ ((__section__(".text.main")))
 			write(1,pidBuffer,strlen(pidBuffer));
 			write(1,c,strlen(c));
 			write(1,"\n",1);
-			//exit();
+			exit();
 		}
 		count++;
 	}

@@ -89,7 +89,7 @@ int sys_fork()
 		}
 	}
 	//check if we found a free entry
-	if(first_free_entry<0) return -ENOMEM;
+	if(first_free_entry<0 && first_free_entry+20 < TOTAL_PAGES  ) return -ENOMEM;
 	
 	for(int i=0;i<NUM_PAG_DATA;i++){
 		set_ss_pag(child_PT,i+PAG_LOG_INIT_DATA,frames[i]);//entries point to allocated frames
@@ -98,9 +98,10 @@ int sys_fork()
 		copy_data((void *)((PAG_LOG_INIT_DATA+i)*PAGE_SIZE),(void *)(first_free_entry*PAGE_SIZE), PAGE_SIZE);
 		//Free temporal entry used in the page table,we don't want the parent to know child user data
 		del_ss_pag(parent_PT,first_free_entry);
-		//Flush TLB to really disable the parent process to access child pages
-		set_cr3(current()->dir_pages_baseAddr); //PREGUNTAR PROFE
+		first_free_entry++;
 	}
+	//Flush TLB to really disable the parent process to access child pages
+	set_cr3(current()->dir_pages_baseAddr);
 	child_union->task.PID=get_new_pid(); //Assign a new PID
 	//Initialize the fields of the task_struct that are not common to the child
 	child_union->task.kernelEsp = &child_union->stack[KERNEL_STACK_SIZE-19]; //Correct esp
