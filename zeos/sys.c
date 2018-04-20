@@ -160,7 +160,7 @@ int sys_gettime(){
 }
 
 int sys_get_stats(int pid,struct stats *st){
-	if(st == NULL || pid <=0) return -1;
+	if(st == NULL || pid <0) return -1;
 	for(int i=0;i<NR_TASKS;i++){
 		if(pid == task[i].task.PID){
 			copy_to_user(&task[i].task.p_stats,st,sizeof(struct stats));
