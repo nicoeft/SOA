@@ -137,19 +137,31 @@ void sys_exit()
 
 int sys_write(int fd, char * buffer, int size){
  update_in_stats();
- int resultCheck=check_fd(fd,ESCRIPTURA);
- if(resultCheck<0) return resultCheck;
- if((buffer == NULL) || size<0) return -EINVAL;
+  int ret;
+ ret=check_fd(fd,ESCRIPTURA);
+ if(ret<0) return ret;
+ if(size<0) return -EINVAL;
+ if(!access_ok(VERIFY_READ, buffer, size)) return -EFAULT;
  char sysBuffer[1024];
- int ret;
- while(size > 1024){
-	 copy_from_user(buffer,sysBuffer,1024);
-	 size -= 1024;
-	 if(ret=sys_write_console(sysBuffer,1024)<0)return ret;
- } 
- copy_from_user(buffer,sysBuffer,size);
+
+ int remaining = size;
+ while(remaining > 1024){
+	copy_from_user(buffer,sysBuffer,1024);
+	ret=sys_write_console(sysBuffer,1024);
+	if(ret<0)return ret;
+	remaining -= ret;
+	buffer+=ret;
+ }
+ if(remaining >0){
+	 copy_from_user(buffer,sysBuffer,remaining);
+	 ret=sys_write_console(sysBuffer,remaining);
+	 if(ret<0)return ret;
+	  remaining -= ret;
+ }
+ 
  interrupt_out_update_stats();
- return sys_write_console (sysBuffer,size);
+ return size-remaining;
+ 
 
 }
 
