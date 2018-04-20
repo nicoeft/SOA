@@ -10,7 +10,7 @@
  * Container for the Task array and 2 additional pages (the first and the last one)
  * to protect against out of bound accesses.
  */
-
+unsigned int QUANTUM = 500;
 unsigned int newpid;
 int quantum_remaining;
 struct list_head freequeue;  //Mirar si hacer extern en el .h
@@ -71,6 +71,17 @@ void cpu_idle(void)
 	}
 }
 
+
+void init_stats_pcb(struct task_struct *t){
+	t->p_stats.user_ticks = 0;
+	t->p_stats.system_ticks = 0;
+	t->p_stats.blocked_ticks = 0;
+	t->p_stats.ready_ticks = 0;
+	t->p_stats.elapsed_total_ticks = get_ticks();
+	t->p_stats.total_trans = 0;
+	t->p_stats.remaining_ticks = get_ticks();
+}
+
 void init_idle (void)
 {
 	struct list_head *primerListHead = list_first(&freequeue);  //agafem el primer PCB de la freequeue
@@ -79,9 +90,10 @@ void init_idle (void)
 	idle_task->PID=0;
 	allocate_DIR(idle_task);
 	union task_union *idle_union = (union task_union *)idle_task;
-	idle_union->stack[KERNEL_STACK_SIZE-1]=&cpu_idle;
+	idle_union->stack[KERNEL_STACK_SIZE-1]=(unsigned int) &cpu_idle;
 	idle_union->stack[KERNEL_STACK_SIZE-2]=0;
 	idle_task->kernelEsp=&(idle_union->stack[KERNEL_STACK_SIZE-2]);
+	init_stats_pcb(idle_task);
 }
 
 void init_task1(void)
@@ -90,14 +102,14 @@ void init_task1(void)
 	list_del(primerListHead);   //eliminem el PCB de la freequeue
 	task1 = list_head_to_task_struct(primerListHead); //agafem adreça PCB
 	task1->PID=1;
-	task1->quantum=1000;
+	task1->quantum=QUANTUM;
 	task1->state=ST_RUN;
 	allocate_DIR(task1);
 	set_user_pages(task1);
 	union task_union *task1_union = (union task_union *)task1;
 	tss.esp0 = KERNEL_ESP(task1_union);
 	set_cr3(task1->dir_pages_baseAddr);
-	
+	init_stats_pcb(task1);	
 }
 
 
@@ -122,6 +134,7 @@ void init_freequeue(){
 	INIT_LIST_HEAD(&freequeue);
 	int i;
 	for(i=0;i<NR_TASKS;i++){
+		task[i].task.PID = -1;
 		list_add(&task[i].task.list,&freequeue);
 	}
 }
@@ -137,9 +150,9 @@ struct task_struct* current()
   return (struct task_struct*)(ret_value&0xfffff000); //mask 12 bits(4KB)
 }
 
-void task_switch(union task_union*t);
+void task_switch(union task_union *t);
 
-void inner_task_switch(union task_union *new_t);
+void inner_task_switch(union task_union *t);
 
 unsigned int get_new_pid(){
 	return newpid++;

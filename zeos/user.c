@@ -21,24 +21,26 @@ int __attribute__ ((__section__(".text.main")))
 	
 	/*if(write(2,buff,strlen(buff))<0) perror();*/
 	int retPid=fork();
+	fork();
+	fork();
 	int count=0;
 	while(1)
 	{
 		if(count%5000000==0){
-			int pid = getpid();
+			pid = getpid();
 			itoa(pid,c);
 			char pidBuffer[]="PID es: ";
 			write(1,pidBuffer,strlen(pidBuffer));
 			write(1,c,strlen(c));
 			write(1,"        \n",10);
-			//if(retPid==0) exit();
-			struct stats st;
-			int retu = get_stats(pid,&st);
+			if(pid%2!=0) exit();
+				struct stats st;
+				int retu = get_stats(6,&st);
 			if(retu == 0){
-			 itoa(st.user_ticks,c);
-			 write(1,"USER_TICKS:",12);
-			 write(1,c,strlen(c));
-			 write(1,"\n",1);
+				itoa(st.user_ticks,c);
+				write(1,"USER_TICKS:",12);
+				write(1,c,strlen(c));
+				write(1,"\n",1);
 			}else write(1,"ERROR_STATS\n",13);
 		}
 		count++;

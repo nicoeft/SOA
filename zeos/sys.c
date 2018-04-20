@@ -83,7 +83,10 @@ int sys_fork()
 	/*we need the entries for user data+stack to point to new allocated pages(frames)
 	Copy the user data+stack pages from the parent process to the child process:
 	Use temporal free entries on the page table of the parent(only for the copy):
-	Search the first free entry of the parent PT*/
+	
+	Search the first free entry of the parent PT 
+	(maybe we could assume there are free entries at LOG_INIT_DATA+NUM_PAG_DATA cause all processes are the same)*/
+	
 	int first_free_entry = -1;
 	for(int i=PAG_LOG_INIT_DATA+NUM_PAG_DATA;i<TOTAL_PAGES;i++){
 		if(!parent_PT[i].entry){
@@ -91,7 +94,9 @@ int sys_fork()
 			break;
 		}
 	}
-	//check if we found a free entry
+
+
+	//check if we found a free entry and we have enough (we could use only one and flush every time)
 	if(first_free_entry<0 && first_free_entry+20 < TOTAL_PAGES  ) return -ENOMEM;
 	
 	for(int i=0;i<NUM_PAG_DATA;i++){
@@ -110,7 +115,8 @@ int sys_fork()
 	child_union->task.kernelEsp = &child_union->stack[KERNEL_STACK_SIZE-19]; //Correct esp
 	//Prepare the child stack with a content that emulates the result of a call to task_switch.Like the idle
 	child_union->stack[KERNEL_STACK_SIZE-19]=0; //when it returns from a task_switch will pop ebp
-	child_union->stack[KERNEL_STACK_SIZE-18]=&ret_from_fork; // and then return(here the magic happens, the fork() in child returns 0)
+	child_union->stack[KERNEL_STACK_SIZE-18]=(unsigned int)&ret_from_fork; // and then return(here the magic happens, the fork() in child returns 0)
+	init_stats_pcb(&child_union->task);
 	child_union->task.state = ST_READY;
 	list_add_tail(&child_union->task.list,&readyqueue);
 	interrupt_out_update_stats();
@@ -123,6 +129,7 @@ void sys_exit()
 { 
 	update_in_stats();
 	free_user_pages(current()); 
+	current()->PID = -1;
 	update_process_state_rr(current(),&freequeue); //free PCB
 	sched_next_rr();
 	interrupt_out_update_stats();
@@ -156,12 +163,6 @@ int sys_get_stats(int pid,struct stats *st){
 	if(st == NULL || pid <=0) return -1;
 	for(int i=0;i<NR_TASKS;i++){
 		if(pid == task[i].task.PID){
-			struct list_head *pos;
-			list_for_each(pos,&freequeue){
-				if(pos == &task[i].task.list){ //dead process
-					return -1;
-				}
-			}
 			copy_to_user(&task[i].task.p_stats,st,sizeof(struct stats));
 			return 0;
 		}
