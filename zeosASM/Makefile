@@ -26,12 +26,12 @@ SYSLDFLAGS = -T system.lds
 USRLDFLAGS = -T user.lds
 LINKFLAGS = -g
 
-SYSOBJ = interrupt.o entry.o sys_call_table.o io.o sched.o sys.o mm.o devices.o utils.o hardware.o list.o p_stats.o kernel-utils.o
+SYSOBJ =  interrupt.o entry.o sys_call_table.o io.o sched.o sys.o mm.o devices.o utils.o hardware.o list.o p_stats.o kernel-utils.o libschedperf.a
 
 LIBZEOS = -L . -l zeos -l auxjp
 
 #add to USROBJ the object files required to complete the user program
-USROBJ = libc.o user-utils.o # libjp.a
+USROBJ = libc.o user-utils.o libuser.a # libjp.a
 
 all:zeos.bin
 
@@ -61,7 +61,7 @@ user-utils.s: user-utils.S $(INCLUDEDIR)/asm.h
 kernel-utils.s: kernel-utils.S $(INCLUDEDIR)/asm.h
 	$(CPP) $(ASMFLAGS) -o $@ $<
 
-sys_call_table.s: sys_call_table.S $(INCLUDEDIR)/asm.h $(INCLUDEDIR)/segment.h
+sys_call_table.s: sys_call_table.S $(INCLUDEDIR)/asm.h $(INCLUDEDIR)/segment.h  
 	$(CPP) $(ASMFLAGS) -o $@ $<
 
 user.o:user.c $(INCLUDEDIR)/libc.h
@@ -70,7 +70,7 @@ interrupt.o:interrupt.c $(INCLUDEDIR)/interrupt.h $(INCLUDEDIR)/segment.h $(INCL
 
 io.o:io.c $(INCLUDEDIR)/io.h
 
-sched.o:sched.c $(INCLUDEDIR)/sched.h
+sched.o:sched.c $(INCLUDEDIR)/sched.h 
 
 libc.o:libc.c $(INCLUDEDIR)/libc.h
 

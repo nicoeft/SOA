@@ -123,7 +123,7 @@ void init_sched(){
   
   /* Initialize readyqueue (sched.c)*/
   init_readyqueue();
-  
+  init_sched_policy();
 }
 
 void init_readyqueue(){
