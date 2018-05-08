@@ -87,11 +87,10 @@ int __attribute__((__section__(".text.main")))
 
   //monoprocess_init_addr_space(); /* TO BE DELETED WHEN ADDED THE PROCESS MANAGEMENT CODE TO BECOME MULTIPROCESS */
 
-  /* Initialize Scheduling */
-  init_sched();
-  
   /* initialization  of console_blocked */
 	zeos_console_init();
+  /* Initialize Scheduling */
+  init_sched();
   /* Initialize idle task  data */
   init_idle();
   /* Initialize task 1 data */
