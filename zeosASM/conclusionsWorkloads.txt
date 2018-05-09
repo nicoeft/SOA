@@ -1,0 +1,10 @@
+Round Robin
+	CPU workload:El tiempo de ready se mantiene constante para todos los procesos(quantum) así como el tiempo de usuario
+	I/O workload:Se ejecuta sobretodo proceso idle ya que los otros permanecen bloqueados.Por algun motivo no funciona correctamente el tiempo de blocked(parece que lo cuenta como tiempo de sistema)
+	Both workload:Error en que el proceso idle pase por la cola de ready. Procesos 1 y 3 simplemente se bloquean(no se ve en tiempo de blocked), mientras que el proceso 2 aprovecha la cpu.
+	
+First Come First Served
+	CPU workload:El tiempo de ready del proceso i+1 es exactamente el tiempo de user del proceso i ya que esta politica consiste en esperar a la finalización del proceso en cpu. El tiempo de user es el mismo ya que hacen la misma tarea.
+	I/O workload:Los tiempos de blocked funcionan correctamente, y vemos que solo idle tiene tiempo de user ya que los otros procesos solo se bloquean.
+	Both workload:Error en que el proceso idle pase por la cola de ready. Procesos 1 y 3 simplemente se bloquean, mientras que el proceso 2 aprovecha la cpu.
+	
