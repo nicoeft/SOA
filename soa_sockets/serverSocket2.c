@@ -4,7 +4,10 @@
 
 
 doServiceFork(int connectionFD){
-	if(fork()==0) doService(connectionFD);
+	if(fork()==0){
+		doService(connectionFD);
+		exit(0);
+	}
 }
 
 doService(int fd) {
