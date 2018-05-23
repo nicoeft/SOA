@@ -18,6 +18,23 @@
 int
 createServerSocket (int port)
 {
+	int socket_fd = socket (AF_INET, SOCK_STREAM, 0);
+	if (socket_fd < 0)
+		return socket_fd;
+	struct sockaddr_in serv_addr;
+	memset((char *) &serv_addr, 0, sizeof(serv_addr));
+	serv_addr.sin_family = PF_INET;
+	serv_addr.sin_port = htons(port);
+    serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+	if(bind(socket_fd,(struct sockaddr *)&serv_addr,sizeof(serv_addr))<0){
+		close (socket_fd);
+		return -2;
+	}
+	if(listen(socket_fd,10)<0){
+		close (socket_fd);
+		return -3;
+	}
+	return socket_fd;
 }
 
 
@@ -29,7 +46,13 @@ createServerSocket (int port)
 int
 acceptNewConnections (int socket_fd)
 {
-
+	struct sockaddr_in client_addr;
+	memset((char *) &client_addr, 0, sizeof(client_addr));
+	int size = sizeof(client_addr);
+	int ret_fd = accept(socket_fd,(struct sockaddr *)&client_addr,&size);
+	if(ret_fd<0)
+		return -1;
+	return ret_fd;
 }
 
 // Returns the socket virtual device that the client should use to access 
