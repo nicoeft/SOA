@@ -1,0 +1,19 @@
+a) Indica que nuevas estructuras se tienen que añadir al sistema operativo para
+implementar esta llamada.
+ Replicaremos estructuras que ya existen, en concreto crearemos una queue para encolar los task_struct de los procesos creados mediante el nuevo fork
+
+b) Indica qué modificaciones se tienen que hacer a las estructuras actuales del sistema
+para implementar esta llamada.
+    añador un int wait_ticks al struct task_struct
+    añadir una funcion add_list_first
+c) Indica qué modificaciones se tienen que hacer en sys_fork.
+    Poner un parametro int, y en funcion de si es o no positivo, utilizar el nuevo comportamiento o mantener el antiguo.
+    El nuevo comportamiento es simplemente añadir el valor de ticks de espera en el atributo del task_struct, y encolarlo en la forkqueue
+d) Indica desde dónde se tiene que hacer la comprobación de que ha pasado el
+intervalo de tiempo especificado en fork.
+     Lo haremos desde la rutina de servicio a interrupcion de reloj
+e) Indica el código que fuerza el cambio de contexto cuando ha pasado el intervalo de
+tiempo especificado en fork.
+    updatesched_rr(); //para mantener actualizadas las stats de los procesos
+    force_task_switch(); // para forzar el cambio de contexto y pasar a ejecutar el primero de la readyqueue(previamente hemos puesto primero nuestro proceso)
+f) (1,5 puntos) Implementa en Zeos el mecanismo descrito.
